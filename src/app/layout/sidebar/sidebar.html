@@ -1,0 +1,15 @@
+<aside class="sidebar">
+  <div class="brand">
+    <h2>Banking</h2>
+    <span>Management System</span>
+  </div>
+  <nav>
+    @for(item of menu; track item.path) {
+    <a [routerLink]="item.path" routerLinkActive="active" class="nav-item">
+      <fa-icon [icon]="item.icon"></fa-icon>
+      <span class="icon" [class]="item.icon"></span>
+      <span>{{item.label}}</span>
+    </a>
+    }
+  </nav>
+</aside>

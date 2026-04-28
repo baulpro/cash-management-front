@@ -1,0 +1,90 @@
+<div class="page-header">
+  <div>
+    <h1>Transactions</h1>
+    <p class="subtitle">Total: {{ totalElements() }} transaction(s)</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">+ New Transaction</button>
+</div>
+
+<div class="filter-bar" [formGroup]="filterForm">
+  <div class="filter-group">
+    <label>Account Number</label>
+    <input type="text" formControlName="accountNumber" placeholder="Search by account..." />
+  </div>
+  <div class="filter-group">
+    <label>Client Name</label>
+    <input type="text" formControlName="clientName" placeholder="Search by client..." />
+  </div>
+  <div class="filter-group">
+    <label>Start Date</label>
+    <input type="date" formControlName="startDate" />
+  </div>
+  <div class="filter-group">
+    <label>End Date</label>
+    <input type="date" formControlName="endDate" />
+  </div>
+  <button class="btn btn-clear" (click)="clearFilters()" type="button">Clear</button>
+</div>
+
+@if (filterForm.errors?.['dateRangeInvalid']) {
+<div class="warning">
+  Start date must be less than or equal to end date
+</div>
+}
+
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Account Number</th>
+        <th>Client</th>
+        <th>Type</th>
+        <th class="amount-col">Amount</th>
+        <th class="amount-col">Available Balance</th>
+        <th class="actions-col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @if (loading()) {
+      <tr>
+        <td colspan="7" class="loading">Loading...</td>
+      </tr>
+      } @else if (transactions().length === 0) {
+      <tr>
+        <td colspan="7" class="empty">No transactions found</td>
+      </tr>
+      } @else {
+      @for (t of transactions(); track t.transactionId) {
+      <tr>
+        <td>{{ t.date | date:'yyyy-MM-dd HH:mm' }}</td>
+        <td><strong>{{ t.accountNumber }}</strong></td>
+        <td>{{ t.clientName }}</td>
+        <td>
+          <span class="type-badge" [class.credit]="t.transactionType === 'CREDIT'"
+            [class.debit]="t.transactionType === 'DEBIT'">
+            {{ t.transactionType }}
+          </span>
+        </td>
+        <td class="amount-col">
+          <span class="amount" [class.credit]="t.transactionType === 'CREDIT'"
+            [class.debit]="t.transactionType === 'DEBIT'">
+            {{ formatAmount(t) }}
+          </span>
+        </td>
+        <td class="amount-col">{{ t.availableBalance | currencyFormat }}</td>
+        <td class="actions">
+          <button class="btn-icon delete" (click)="onDelete(t)" title="Delete">🗑</button>
+        </td>
+      </tr>
+      }
+      }
+    </tbody>
+  </table>
+</div>
+
+<app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+
+@if (showForm()) {
+<app-transaction-form (closed)="onFormClose($event)" />
+}

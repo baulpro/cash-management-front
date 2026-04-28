@@ -1,0 +1,88 @@
+<div class="form-overlay" (click)="onCancel()">
+  <div class="form-box" (click)="$event.stopPropagation()">
+    <div class="form-header">
+      <h3>{{ isEdit() ? 'Edit Account' : 'New Account' }}</h3>
+      <button class="close-btn" (click)="onCancel()" type="button">✕</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Account Number *</label>
+          <input type="text" formControlName="accountNumber" placeholder="013456" />
+          @if (hasError('accountNumber', 'required')) {
+          <small class="error">Account number is required</small>
+          }
+          @if (hasError('accountNumber', 'maxlength')) {
+          <small class="error">Max 30 characters</small>
+          }
+        </div>
+        <div class="form-group">
+          <label>Type *</label>
+          <select formControlName="typeAccount">
+            <option value="">Select type...</option>
+            @for (t of accountTypes; track t) {
+            <option [value]="t">{{ t }}</option>
+            }
+          </select>
+          @if (hasError('typeAccount', 'required')) {
+          <small class="error">Type is required</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>
+            Original Balance *
+            @if (isEdit()) { <span class="hint">(read-only)</span> }
+          </label>
+          <input type="number" formControlName="originalBalance" min="0" step="0.01" placeholder="0.00" />
+          @if (hasError('originalBalance', 'required')) {
+          <small class="error">Original balance is required</small>
+          }
+          @if (hasError('originalBalance', 'min')) {
+          <small class="error">Must be 0 or greater</small>
+          }
+        </div>
+        <div class="form-group">
+          <label>Status *</label>
+          <select formControlName="status">
+            <option [ngValue]="true">ACTIVE</option>
+            <option [ngValue]="false">INACTIVE</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full">
+          <label>Client *</label>
+          @if (loadingClients()) {
+          <select disabled>
+            <option>Loading clients...</option>
+          </select>
+          } @else {
+          <select formControlName="clientId">
+            <option [ngValue]="null">Select client...</option>
+            @for (c of clients(); track c.clientId) {
+            <option [ngValue]="c.clientId">
+              {{ c.name }} ({{ c.idCard }})
+            </option>
+            }
+          </select>
+          }
+          @if (hasError('clientId', 'required')) {
+          <small class="error">Client is required</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+          {{ submitting() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="page-header">
+  <div>
+    <h1>Clients</h1>
+    <p class="subtitle">Total: {{ totalElements() }} client(s)</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">+ New Client</button>
+</div>
+
+<div class="filter-bar">
+  <input type="text" placeholder="Search by name or ID Card..." [formControl]="searchControl" class="search-input" />
+</div>
+
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Gender</th>
+        <th>Age</th>
+        <th>ID Card</th>
+        <th>Status</th>
+        <th class="actions-col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @if (loading()) {
+      <tr>
+        <td colspan="6" class="loading">Loading...</td>
+      </tr>
+      } @else if (clients().length === 0) {
+      <tr>
+        <td colspan="6" class="empty">No clients found</td>
+      </tr>
+      } @else {
+      @for (c of clients(); track c.clientId) {
+      <tr>
+        <td>{{ c.name }}</td>
+        <td>{{ c.gender }}</td>
+        <td>{{ c.age }}</td>
+        <td>{{ c.idCard }}</td>
+        <td>
+          <span class="badge" [class.active]="c.status" [class.inactive]="!c.status">
+            {{ c.status | statusLabel }}
+          </span>
+        </td>
+        <td class="actions">
+          <button class="btn-icon edit" (click)="openEdit(c)" title="Edit">✎</button>
+          <button class="btn-icon delete" (click)="onDelete(c)" title="Delete">🗑</button>
+        </td>
+      </tr>
+      }
+      }
+    </tbody>
+  </table>
+</div>
+
+<app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+
+@if (showForm()) {
+<app-client-form [client]="selectedClient()" (closed)="onFormClose($event)" />
+}

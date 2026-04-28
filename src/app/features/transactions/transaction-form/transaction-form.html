@@ -1,0 +1,87 @@
+<div class="form-overlay" (click)="onCancel()">
+  <div class="form-box" (click)="$event.stopPropagation()">
+    <div class="form-header">
+      <h3>New Transaction</h3>
+      <button class="close-btn" (click)="onCancel()" type="button">✕</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group full">
+          <label>Account *</label>
+          @if (loadingAccounts()) {
+          <select disabled>
+            <option>Loading accounts...</option>
+          </select>
+          } @else {
+          <select formControlName="accountNumber">
+            <option value="">Select account...</option>
+            @for (a of accounts(); track a.accountId) {
+            <option [value]="a.accountNumber">
+              {{ a.accountNumber }} - {{ a.clientName }} ({{ a.typeAccount }})
+            </option>
+            }
+          </select>
+          }
+          @if (hasError('accountNumber', 'required')) {
+          <small class="error">Account is required</small>
+          }
+        </div>
+      </div>
+
+      @if (selectedAccount(); as acc) {
+      <div class="account-info">
+        <div class="info-item">
+          <span class="info-label">Type</span>
+          <span class="info-value">{{ acc.typeAccount }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Current Balance</span>
+          <span class="info-value balance">{{ acc.currentBalance | currencyFormat }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Owner</span>
+          <span class="info-value">{{ acc.clientName }}</span>
+        </div>
+      </div>
+      }
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Transaction Type *</label>
+          <select formControlName="transactionType">
+            <option value="">Select type...</option>
+            @for (t of transactionTypes; track t) {
+            <option [value]="t">{{ t === 'CREDIT' ? 'CREDIT (Deposit)' : 'DEBIT (Withdrawal)' }}</option>
+            }
+          </select>
+          @if (hasError('transactionType', 'required')) {
+          <small class="error">Type is required</small>
+          }
+        </div>
+        <div class="form-group">
+          <label>Amount *</label>
+          <input type="number" formControlName="amount" min="0.01" step="0.01" placeholder="0.00" />
+          @if (hasError('amount', 'required')) {
+          <small class="error">Amount is required</small>
+          }
+          @if (hasError('amount', 'min')) {
+          <small class="error">Amount must be greater than 0</small>
+          }
+        </div>
+      </div>
+
+      <div class="info-box">
+        Daily withdrawal limit is $1,000. Also, Transactions on inactive
+        accounts or accounts of inactive clients are not allowed.
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+          {{ submitting() ? 'Processing...' : 'Confirm' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

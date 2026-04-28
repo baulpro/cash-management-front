@@ -1,0 +1,28 @@
+@if (state().open) {
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header" [class]="headerClass()">
+      <span class="modal-icon">
+        @switch (state().type) {
+        @case ('success') { ✓ }
+        @case ('error') { ✕ }
+        @case ('confirm') { ? }
+        @default { ! }
+        }
+      </span>
+      <h3>{{ state().title }}</h3>
+    </div>
+    <div class="modal-body">
+      <p>{{ state().message }}</p>
+    </div>
+    <div class="modal-footer">
+      @if (state().type === 'confirm') {
+      <button class="btn btn-secondary" (click)="onClose()">Cancel</button>
+      <button class="btn btn-primary" (click)="onConfirm()">Confirm</button>
+      } @else {
+      <button class="btn btn-primary" (click)="onClose()">OK</button>
+      }
+    </div>
+  </div>
+</div>
+}

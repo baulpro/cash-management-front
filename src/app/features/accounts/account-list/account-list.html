@@ -1,0 +1,85 @@
+<div class="page-header">
+  <div>
+    <h1>Accounts</h1>
+    <p class="subtitle">Total: {{ totalElements() }} account(s)</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">+ New Account</button>
+</div>
+
+<div class="filter-bar" [formGroup]="filterForm">
+  <div class="filter-group">
+    <label>Account Number</label>
+    <input type="text" formControlName="accountNumber" placeholder="Search by account number..." />
+  </div>
+  <div class="filter-group">
+    <label>Type</label>
+    <select formControlName="typeAccount">
+      <option value="">All Types</option>
+      @for (t of accountTypes; track t) {
+      <option [value]="t">{{ t }}</option>
+      }
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Client Name</label>
+    <input type="text" formControlName="clientName" placeholder="Search by client name..." />
+  </div>
+  <button class="btn btn-clear" (click)="clearFilters()" type="button">Clear</button>
+</div>
+
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Account Number</th>
+        <th>Type</th>
+        <th>Original Balance</th>
+        <th>Current Balance</th>
+        <th>Status</th>
+        <th>Client</th>
+        <th class="actions-col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @if (loading()) {
+      <tr>
+        <td colspan="7" class="loading">Loading...</td>
+      </tr>
+      } @else if (accounts().length === 0) {
+      <tr>
+        <td colspan="7" class="empty">No accounts found</td>
+      </tr>
+      } @else {
+      @for (a of accounts(); track a.accountId) {
+      <tr>
+        <td><strong>{{ a.accountNumber }}</strong></td>
+        <td>
+          <span class="type-badge" [class.saving]="a.typeAccount === 'SAVING'"
+            [class.checking]="a.typeAccount === 'CHECKING'">
+            {{ a.typeAccount }}
+          </span>
+        </td>
+        <td>{{ a.originalBalance | currencyFormat }}</td>
+        <td>{{ a.currentBalance | currencyFormat }}</td>
+        <td>
+          <span class="badge" [class.active]="a.status" [class.inactive]="!a.status">
+            {{ a.status | statusLabel }}
+          </span>
+        </td>
+        <td>{{ a.clientName }}</td>
+        <td class="actions">
+          <button class="btn-icon edit" (click)="openEdit(a)" title="Edit">✎</button>
+          <button class="btn-icon delete" (click)="onDelete(a)" title="Delete">🗑</button>
+        </td>
+      </tr>
+      }
+      }
+    </tbody>
+  </table>
+</div>
+
+<app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+
+@if (showForm()) {
+<app-account-form [account]="selectedAccount()" (closed)="onFormClose($event)" />
+}
